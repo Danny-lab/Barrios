@@ -18,10 +18,6 @@
             margin-top: 20px;
             font-size: 2.2rem;
         }
-        .map-container {
-            text-align: center;
-            margin: 30px 0;
-        }
         video {
             width: 100%;
             max-width: 600px;
@@ -52,7 +48,7 @@
 
     <h1>Escanear Código QR</h1>
     <div style="text-align:center;">
-        <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara</button>
+        <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara Trasera</button>
     </div>
 
     <video id="preview"></video>
@@ -74,9 +70,7 @@
                     return;
                 }
 
-                // Preguntar al usuario si quiere usar la cámara trasera o frontal
-                const usarCamaraFrontal = confirm("¿Usar cámara frontal?");
-                const facingMode = usarCamaraFrontal ? 'user' : 'environment';
+                const facingMode = 'environment'; // Usar siempre la cámara trasera
 
                 try {
                     // Solicitar acceso a la cámara
