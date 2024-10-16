@@ -86,7 +86,6 @@
             font-size: 0.9rem;
             color: #666;
         }
-
     </style>
 </head>
 <body>
@@ -125,6 +124,7 @@
                 return;
             }
 
+            // Solicitar acceso a la cámara
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
                 .then(function (stream) {
                     video.srcObject = stream;
@@ -183,4 +183,3 @@
 
 </body>
 </html>
-
