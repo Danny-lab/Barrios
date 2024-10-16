@@ -112,71 +112,66 @@
     </footer>
 
     <!-- Asegúrate de que el script se carga correctamente -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
+        QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
 
-            const video = document.getElementById('preview');
-            const resultDiv = document.getElementById('result');
-            let qrScanner;
+        const video = document.getElementById('preview');
+        const resultDiv = document.getElementById('result');
+        let qrScanner;
 
-            // Función para inicializar el escaneo de QR
-            function iniciarEscaneo() {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert("Tu navegador no soporta acceso a la cámara.");
-                    return;
-                }
+        // Función para inicializar el escaneo de QR
+        function iniciarEscaneo() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Tu navegador no soporta acceso a la cámara.");
+                return;
+            }
 
-                // Solicitar acceso a la cámara
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                    .then(function (stream) {
-                        video.srcObject = stream;
-                        video.play();
-                        qrScanner = new QrScanner(video, result => {
-                            // Cuando se escanea un QR, se llama esta función
-                            mostrarContenidoPorBarrio(result);
-                            qrScanner.stop(); // Detener el escaneo después de detectar el QR
-                            video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
-                            stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
-                        });
-                        qrScanner.start(); // Comenzar a escanear
-                        video.style.display = 'block'; // Mostrar el video mientras se escanea
-                    })
-                    .catch(function (err) {
-                        console.error(err);
-                        alert("No se pudo acceder a la cámara: " + err.message);
+            // Solicitar acceso a la cámara
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    qrScanner = new QrScanner(video, result => {
+                        // Cuando se escanea un QR, se llama esta función
+                        mostrarContenidoPorBarrio(result);
+                        qrScanner.stop(); // Detener el escaneo después de detectar el QR
+                        video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
+                        stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
                     });
-            }
+                    qrScanner.start(); // Comenzar a escanear
+                    video.style.display = 'block'; // Mostrar el video mientras se escanea
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    alert("No se pudo acceder a la cámara: " + err.message);
+                });
+        }
 
-            // Función que muestra la imagen o contenido según el texto del QR escaneado
-            function mostrarContenidoPorBarrio(textoQR) {
-                let contenido;
-                switch (textoQR.toUpperCase()) {
-                    case 'PLAYON':
-                        contenido = `<img src="el_playon_imagen.jpg" alt="El Playón de los Comuneros">`;
-                        break;
-                    case 'FRONTERA':
-                        contenido = `<img src="la_frontera_imagen.jpg" alt="La Frontera">`;
-                        break;
-                    case 'PABLOVI':
-                        contenido = `<img src="pablo_vi_imagen.jpg" alt="Pablo VI">`;
-                        break;
-                    case 'ISLA':
-                        contenido = `<img src="la_isla_imagen.jpg" alt="La Isla">`;
-                        break;
-                    case 'ANDALUCIA':
-                        contenido = `<img src="andalucia_imagen.jpg" alt="Andalucía">`;
-                        break;
-                    default:
-                        contenido = `<p>No se encontró contenido para el barrio: ${textoQR}</p>`;
-                }
-                resultDiv.innerHTML = contenido;
+        // Función que muestra la imagen o contenido según el texto del QR escaneado
+        function mostrarContenidoPorBarrio(textoQR) {
+            let contenido;
+            switch (textoQR.toUpperCase()) {
+                case 'PLAYON':
+                    contenido = `<img src="el_playon_imagen.jpg" alt="El Playón de los Comuneros">`;
+                    break;
+                case 'FRONTERA':
+                    contenido = `<img src="la_frontera_imagen.jpg" alt="La Frontera">`;
+                    break;
+                case 'PABLOVI':
+                    contenido = `<img src="pablo_vi_imagen.jpg" alt="Pablo VI">`;
+                    break;
+                case 'ISLA':
+                    contenido = `<img src="la_isla_imagen.jpg" alt="La Isla">`;
+                    break;
+                case 'ANDALUCIA':
+                    contenido = `<img src="andalucia_imagen.jpg" alt="Andalucía">`;
+                    break;
+                default:
+                    contenido = `<p>No se encontró contenido para el barrio: ${textoQR}</p>`;
             }
-
-            // Exponer la función iniciarEscaneo al ámbito global
-            window.iniciarEscaneo = iniciarEscaneo;
-        });
+            resultDiv.innerHTML = contenido;
+        }
     </script>
 </body>
 </html>
