@@ -17,13 +17,34 @@
             margin-top: 20px;
             font-size: 2.2rem;
         }
-        video {
+        .video-container {
+            position: relative;
             width: 100%;
             max-width: 600px;
             margin: 20px auto;
+        }
+        video {
+            width: 100%;
             border: 1px solid #ddd;
             border-radius: 8px;
             display: block;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: red;
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+            100% {
+                top: 100%;
+            }
         }
         .btn-scan {
             display: block;
@@ -55,7 +76,10 @@
         <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara Trasera</button>
     </div>
 
-    <video id="preview"></video>
+    <div class="video-container">
+        <video id="preview"></video>
+        <div class="scan-line" id="scan-line"></div>
+    </div>
 
     <footer>
         <p>© 2024 Escaneo QR - Todos los derechos reservados</p>
@@ -65,6 +89,7 @@
     <script>
         const codeReader = new ZXing.BrowserQRCodeReader();
         const video = document.getElementById('preview');
+        const scanLine = document.getElementById('scan-line');
 
         async function iniciarEscaneo() {
             try {
@@ -73,6 +98,9 @@
                 video.srcObject = stream;
                 video.play();
 
+                // Mostrar la línea de escaneo
+                scanLine.style.display = 'block';
+
                 // Decodificar el QR en tiempo real desde el video
                 codeReader.decodeFromVideoDevice(null, 'preview', (result, err) => {
                     if (result) {
@@ -80,6 +108,8 @@
                         codeReader.reset();
                         // Detener el stream de la cámara después de escanear
                         stream.getTracks().forEach(track => track.stop());
+                        // Ocultar la línea de escaneo
+                        scanLine.style.display = 'none';
                     }
                     if (err && !(err instanceof ZXing.NotFoundException)) {
                         console.error(err);
