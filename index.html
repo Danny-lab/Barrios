@@ -112,9 +112,9 @@
     </footer>
 
     <!-- Asegúrate de que el script se carga correctamente -->
-    <script type="module">
-        import QrScanner from 'https://unpkg.com/qr-scanner/qr-scanner.min.js';
-        QrScanner.WORKER_PATH = 'https://unpkg.com/qr-scanner/qr-scanner-worker.min.js';
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
+    <script>
+        QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
 
         const video = document.getElementById('preview');
         const resultDiv = document.getElementById('result');
