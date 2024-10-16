@@ -111,6 +111,7 @@
         <p>© 2024 Mapa Interactivo - Todos los derechos reservados</p>
     </footer>
 
+    <!-- Asegúrate de que el script se carga correctamente -->
     <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
     <script>
         const video = document.getElementById('preview');
@@ -164,22 +165,11 @@
                 case 'ANDALUCIA':
                     contenido = `<img src="andalucia_imagen.jpg" alt="Andalucía">`;
                     break;
-                case 'VILLANUEVA':
-                    contenido = `<img src="villanueva_imagen.jpg" alt="Villanueva">`;
-                    break;
-                case 'SANTACRUZ':
-                    contenido = `<img src="santa_cruz_imagen.jpg" alt="Santa Cruz">`;
-                    break;
-                case 'MOSCU1':
-                    contenido = `<img src="moscu_imagen.jpg" alt="Moscu No. 1">`;
-                    break;
                 default:
-                    contenido = `<p>No se ha encontrado contenido para el barrio escaneado.</p>`;
+                    contenido = `<p>No se encontró contenido para el barrio: ${textoQR}</p>`;
             }
-
-            resultDiv.innerHTML = contenido; // Mostramos el contenido en el div result
+            resultDiv.innerHTML = contenido;
         }
     </script>
-
 </body>
 </html>
