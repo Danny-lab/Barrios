@@ -34,6 +34,11 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-scan:hover {
+            background-color: #00327d;
         }
         footer {
             text-align: center;
@@ -63,14 +68,17 @@
 
         async function iniciarEscaneo() {
             try {
+                // Solicitar acceso a la cámara trasera (facingMode: 'environment')
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 video.srcObject = stream;
                 video.play();
 
+                // Decodificar el QR en tiempo real desde el video
                 codeReader.decodeFromVideoDevice(null, 'preview', (result, err) => {
                     if (result) {
                         alert('Código QR escaneado: ' + result.text);
                         codeReader.reset();
+                        // Detener el stream de la cámara después de escanear
                         stream.getTracks().forEach(track => track.stop());
                     }
                     if (err && !(err instanceof ZXing.NotFoundException)) {
