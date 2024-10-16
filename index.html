@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escaneo de Código QR con ZXing</title>
+    <title>Mapa Interactivo con Escaneo QR</title>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -61,6 +61,24 @@
         .btn-scan:hover {
             background-color: #00327d;
         }
+        .result-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .result-container img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .result-container p {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            color: #333;
+        }
         footer {
             text-align: center;
             margin-top: 40px;
@@ -71,7 +89,8 @@
 </head>
 <body>
 
-    <h1>Escanear Código QR</h1>
+    <h1>Mapa Interactivo - Escanear Código QR</h1>
+    
     <div style="text-align:center;">
         <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara Trasera</button>
     </div>
@@ -79,6 +98,12 @@
     <div class="video-container">
         <video id="preview"></video>
         <div class="scan-line" id="scan-line"></div>
+    </div>
+
+    <!-- Sección donde se mostrará el resultado del QR escaneado -->
+    <div id="result" class="result-container" style="display: none;">
+        <img id="result-image" src="" alt="Imagen del barrio">
+        <p id="result-description"></p>
     </div>
 
     <footer>
@@ -90,10 +115,13 @@
         const codeReader = new ZXing.BrowserQRCodeReader();
         const video = document.getElementById('preview');
         const scanLine = document.getElementById('scan-line');
+        const resultContainer = document.getElementById('result');
+        const resultImage = document.getElementById('result-image');
+        const resultDescription = document.getElementById('result-description');
 
         async function iniciarEscaneo() {
             try {
-                // Solicitar acceso a la cámara trasera (facingMode: 'environment')
+                // Solicitar acceso a la cámara trasera
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 video.srcObject = stream;
                 video.play();
@@ -104,7 +132,7 @@
                 // Decodificar el QR en tiempo real desde el video
                 codeReader.decodeFromVideoDevice(null, 'preview', (result, err) => {
                     if (result) {
-                        alert('Código QR escaneado: ' + result.text);
+                        mostrarContenidoPorBarrio(result.text); // Mostrar el contenido relacionado
                         codeReader.reset();
                         // Detener el stream de la cámara después de escanear
                         stream.getTracks().forEach(track => track.stop());
@@ -121,7 +149,39 @@
             }
         }
 
+        // Función para mostrar la información basada en el código QR escaneado
+        function mostrarContenidoPorBarrio(barrio) {
+            let imageUrl = '';
+            let description = '';
+
+            // Verificar el texto del QR y asignar el contenido correspondiente
+            switch (barrio.toUpperCase()) {
+                case 'PLAYON':
+                    imageUrl = 'el_playon_imagen.jpg';
+                    description = 'El Playón de los Comuneros es uno de los barrios más representativos de la comuna.';
+                    break;
+                case 'FRONTERA':
+                    imageUrl = 'la_frontera_imagen.jpg';
+                    description = 'La Frontera, conocida por su ambiente tranquilo y familiar.';
+                    break;
+                case 'PABLOVI':
+                    imageUrl = 'pablo_vi_imagen.jpg';
+                    description = 'Pablo VI es un barrio con una gran historia cultural.';
+                    break;
+                // Agrega más barrios aquí según corresponda
+                default:
+                    imageUrl = '';
+                    description = 'No se encontró información para el barrio escaneado.';
+            }
+
+            // Mostrar la imagen y descripción en la página
+            resultImage.src = imageUrl;
+            resultDescription.textContent = description;
+            resultContainer.style.display = 'block'; // Mostrar la sección de resultado
+        }
+
         window.iniciarEscaneo = iniciarEscaneo;
     </script>
+
 </body>
 </html>
