@@ -3,58 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escaneo de Código QR con jsQR</title>
+    <title>Escaneo de Código QR con ZXing</title>
     <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #004aad;
+            margin-top: 20px;
+            font-size: 2.2rem;
+        }
         video {
             width: 100%;
             max-width: 600px;
             margin: 20px auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             display: block;
+        }
+        .btn-scan {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            background-color: #004aad;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #666;
         }
     </style>
 </head>
 <body>
 
     <h1>Escanear Código QR</h1>
+    <div style="text-align:center;">
+        <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara Trasera</button>
+    </div>
+
     <video id="preview"></video>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <footer>
+        <p>© 2024 Escaneo QR - Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
     <script>
+        const codeReader = new ZXing.BrowserQRCodeReader();
         const video = document.getElementById('preview');
 
         async function iniciarEscaneo() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("Tu navegador no soporta acceso a la cámara.");
-                return;
-            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+                video.play();
 
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            video.srcObject = stream;
-            video.play();
-
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-
-            video.addEventListener('play', () => {
-                const scan = () => {
-                    if (video.paused || video.ended) return;
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height);
-                    if (code) {
-                        alert('Código QR escaneado: ' + code.data);
+                codeReader.decodeFromVideoDevice(null, 'preview', (result, err) => {
+                    if (result) {
+                        alert('Código QR escaneado: ' + result.text);
+                        codeReader.reset();
                         stream.getTracks().forEach(track => track.stop());
-                    } else {
-                        requestAnimationFrame(scan);
                     }
-                };
-                scan();
-            });
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                    }
+                });
+            } catch (err) {
+                console.error("Error accediendo a la cámara: ", err);
+                alert("No se pudo acceder a la cámara: " + err.message);
+            }
         }
 
-        iniciarEscaneo();
+        window.iniciarEscaneo = iniciarEscaneo;
     </script>
 </body>
 </html>
