@@ -3,98 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escaneo de Código QR</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Escaneo de Código QR con jsQR</title>
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            text-align: center;
-            color: #004aad;
-            margin-top: 20px;
-            font-size: 2.2rem;
-        }
         video {
             width: 100%;
             max-width: 600px;
             margin: 20px auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            display: none; /* Ocultar el video inicialmente */
-        }
-        .btn-scan {
             display: block;
-            margin: 20px auto;
-            padding: 12px 30px;
-            background-color: #004aad;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 0.9rem;
-            color: #666;
         }
     </style>
 </head>
 <body>
 
     <h1>Escanear Código QR</h1>
-    <div style="text-align:center;">
-        <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara Trasera</button>
-    </div>
-
     <video id="preview"></video>
 
-    <footer>
-        <p>© 2024 Escaneo QR - Todos los derechos reservados</p>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const video = document.getElementById('preview');
-            let qrScanner;
+        const video = document.getElementById('preview');
 
-            // Función para iniciar el escaneo de QR
-            async function iniciarEscaneo() {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert("Tu navegador no soporta acceso a la cámara.");
-                    return;
-                }
-
-                const facingMode = 'environment'; // Usar siempre la cámara trasera
-
-                try {
-                    // Solicitar acceso a la cámara
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
-                    video.srcObject = stream;
-                    video.play();
-                    video.style.display = 'block'; // Mostrar el video mientras se escanea
-
-                    qrScanner = new QrScanner(video, result => {
-                        alert('Código QR escaneado: ' + result);
-                        qrScanner.stop(); // Detener el escaneo después de detectar el QR
-                        stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
-                        video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
-                    });
-                    qrScanner.start(); // Comenzar a escanear
-                } catch (err) {
-                    console.error("Error accediendo a la cámara: ", err);
-                    alert("No se pudo acceder a la cámara: " + err.message);
-                }
+        async function iniciarEscaneo() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Tu navegador no soporta acceso a la cámara.");
+                return;
             }
 
-            // Asignar la función al objeto window
-            window.iniciarEscaneo = iniciarEscaneo;
-        });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            video.srcObject = stream;
+            video.play();
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            video.addEventListener('play', () => {
+                const scan = () => {
+                    if (video.paused || video.ended) return;
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    if (code) {
+                        alert('Código QR escaneado: ' + code.data);
+                        stream.getTracks().forEach(track => track.stop());
+                    } else {
+                        requestAnimationFrame(scan);
+                    }
+                };
+                scan();
+            });
+        }
+
+        iniciarEscaneo();
     </script>
 </body>
 </html>
