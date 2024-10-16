@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Interactivo con QR</title>
+    <title>Escáner QR Simple</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -24,32 +24,6 @@
         .map-container {
             text-align: center;
             margin: 30px 0;
-        }
-
-        .map-container img {
-            max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        #result {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 20px auto;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        #result img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .btn-scan {
@@ -80,6 +54,19 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
         footer {
             text-align: center;
             margin-top: 40px;
@@ -90,11 +77,7 @@
 </head>
 <body>
 
-    <h1>Mapa Interactivo de Barrios</h1>
-
-    <div class="map-container">
-        <img src="mapa.jpeg" alt="Mapa de la Comuna" width="500">
-    </div>
+    <h1>Escáner QR</h1>
 
     <div style="text-align:center;">
         <button class="btn-scan" onclick="iniciarEscaneo()">Escanear Código QR</button>
@@ -103,14 +86,14 @@
     <video id="preview"></video>
 
     <div id="result">
-        <p>Escanea un código QR para ver el contenido relacionado con el barrio.</p>
+        <p>Escanea un código QR y el resultado aparecerá aquí.</p>
     </div>
 
     <footer>
-        <p>© 2024 Mapa Interactivo - Todos los derechos reservados</p>
+        <p>© 2024 Escáner QR - Todos los derechos reservados</p>
     </footer>
 
-    <!-- Asegúrate de que el script se carga correctamente -->
+    <!-- Script del escáner QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
     <script>
         // Ruta del worker
@@ -135,7 +118,7 @@
                     video.play();
                     qrScanner = new QrScanner(video, result => {
                         console.log('QR Code escaneado: ', result);
-                        mostrarContenidoPorBarrio(result);
+                        mostrarResultadoQR(result);
                         qrScanner.stop(); // Detener el escaneo
                         video.style.display = 'none'; // Ocultar el video después del escaneo
                         stream.getTracks().forEach(track => track.stop()); // Detener acceso a la cámara
@@ -149,29 +132,9 @@
                 });
         }
 
-        // Función que muestra el contenido según el texto del QR escaneado
-        function mostrarContenidoPorBarrio(textoQR) {
-            let contenido;
-            switch (textoQR.toUpperCase()) {
-                case 'PLAYON':
-                    contenido = `<img src="el_playon_imagen.jpg" alt="El Playón de los Comuneros">`;
-                    break;
-                case 'FRONTERA':
-                    contenido = `<img src="la_frontera_imagen.jpg" alt="La Frontera">`;
-                    break;
-                case 'PABLOVI':
-                    contenido = `<img src="pablo_vi_imagen.jpg" alt="Pablo VI">`;
-                    break;
-                case 'ISLA':
-                    contenido = `<img src="la_isla_imagen.jpg" alt="La Isla">`;
-                    break;
-                case 'ANDALUCIA':
-                    contenido = `<img src="andalucia_imagen.jpg" alt="Andalucía">`;
-                    break;
-                default:
-                    contenido = `<p>No se encontró contenido para el barrio: ${textoQR}</p>`;
-            }
-            resultDiv.innerHTML = contenido;
+        // Mostrar el resultado del QR escaneado
+        function mostrarResultadoQR(textoQR) {
+            resultDiv.innerHTML = `<p>Resultado del QR: ${textoQR}</p>`;
         }
     </script>
 </body>
