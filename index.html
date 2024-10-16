@@ -3,53 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Interactivo con Escaneo QR</title>
+    <meta name="description" content="Mapa interactivo con escaneo de código QR para información de barrios">
+    <title>Mapa Interactivo - Escaneo QR</title>
+
+    <!-- Tipografía de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Estilos CSS -->
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f2f5;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         h1 {
             text-align: center;
             color: #004aad;
-            margin-top: 20px;
-            font-size: 2.2rem;
+            margin-top: 40px;
+            font-weight: 600;
+            font-size: 2.5rem;
         }
         .container {
-            max-width: 600px;
-            margin: 20px auto;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
         .map-image {
             max-width: 100%;
             height: auto;
-            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+        .map-image:hover {
+            transform: scale(1.05);
+        }
+        .btn-scan {
+            display: inline-block;
+            padding: 12px 35px;
+            background-color: #004aad;
+            color: white;
+            border: none;
             border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-scan:hover {
+            background-color: #00327d;
+            transform: translateY(-3px);
         }
         .video-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
-            margin: 20px auto;
+            margin-top: 30px;
         }
         video {
             width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            display: block;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         .scan-line {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background-color: red;
-            animation: scan 3s linear infinite;
+            height: 3px;
+            background-color: #ff0000;
+            animation: scan 2.5s linear infinite;
         }
         @keyframes scan {
             0% {
@@ -59,74 +97,72 @@
                 top: 100%;
             }
         }
-        .btn-scan {
-            display: inline-block;
-            margin: 20px auto;
-            padding: 12px 30px;
-            background-color: #004aad;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: background-color 0.3s ease;
-        }
-        .btn-scan:hover {
-            background-color: #00327d;
-        }
         .result-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
+            display: none;
+            margin-top: 30px;
             padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         .result-container img {
             width: 100%;
-            border-radius: 8px;
+            border-radius: 10px;
         }
         .result-container p {
-            margin-top: 10px;
+            margin-top: 15px;
             font-size: 1.1rem;
-            color: #333;
+            color: #495057;
         }
         footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: auto;
+            padding: 20px 0;
+            background-color: #f8f9fa;
             font-size: 0.9rem;
-            color: #666;
+            color: #6c757d;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .btn-scan {
+                padding: 10px 30px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <h1>Mapa Interactivo - Escanear Código QR</h1>
-    
+    <h1>Mapa Interactivo - Escanea el Código QR</h1>
+
     <div class="container">
         <!-- Imagen del mapa -->
-        <img src="mapa.jpeg" alt="Mapa del Barrio" class="map-image">
+        <img src="ruta_del_mapa.jpg" alt="Mapa del Barrio" class="map-image">
         
         <!-- Botón para abrir la cámara -->
-        <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara Trasera</button>
+        <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara</button>
     </div>
 
+    <!-- Contenedor del video para el escaneo -->
     <div class="video-container">
         <video id="preview"></video>
         <div class="scan-line" id="scan-line"></div>
     </div>
 
     <!-- Sección donde se mostrará el resultado del QR escaneado -->
-    <div id="result" class="result-container" style="display: none;">
+    <div id="result" class="result-container">
         <img id="result-image" src="" alt="Imagen del barrio">
         <p id="result-description"></p>
     </div>
 
     <footer>
-        <p>© 2024 Escaneo QR - Todos los derechos reservados</p>
+        <p>© 2024 Mapa Interactivo con Escaneo QR. Todos los derechos reservados.</p>
     </footer>
 
+    <!-- Lógica de escaneo QR -->
     <script src="https://unpkg.com/@zxing/library@latest"></script>
     <script>
         const codeReader = new ZXing.BrowserQRCodeReader();
@@ -138,22 +174,16 @@
 
         async function iniciarEscaneo() {
             try {
-                // Solicitar acceso a la cámara trasera
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 video.srcObject = stream;
                 video.play();
-
-                // Mostrar la línea de escaneo
                 scanLine.style.display = 'block';
 
-                // Decodificar el QR en tiempo real desde el video
                 codeReader.decodeFromVideoDevice(null, 'preview', (result, err) => {
                     if (result) {
-                        mostrarContenidoPorBarrio(result.text); // Mostrar el contenido relacionado
+                        mostrarContenidoPorBarrio(result.text);
                         codeReader.reset();
-                        // Detener el stream de la cámara después de escanear
                         stream.getTracks().forEach(track => track.stop());
-                        // Ocultar la línea de escaneo
                         scanLine.style.display = 'none';
                     }
                     if (err && !(err instanceof ZXing.NotFoundException)) {
@@ -166,35 +196,31 @@
             }
         }
 
-        // Función para mostrar la información basada en el código QR escaneado
         function mostrarContenidoPorBarrio(barrio) {
             let imageUrl = '';
             let description = '';
 
-            // Verificar el texto del QR y asignar el contenido correspondiente
             switch (barrio.toUpperCase()) {
                 case 'PLAYON':
                     imageUrl = 'playon.jpg';
-                    description = 'El Playón de los Comuneros es uno de los barrios más representativos de la comuna.';
+                    description = 'El Playón de los Comuneros es un barrio representativo de la comuna.';
                     break;
                 case 'FRONTERA':
-                    imageUrl = 'la_frontera_imagen.jpg';
-                    description = 'La Frontera, conocida por su ambiente tranquilo y familiar.';
+                    imageUrl = 'frontera.jpg';
+                    description = 'La Frontera es conocida por su tranquilidad y ambiente familiar.';
                     break;
                 case 'PABLOVI':
-                    imageUrl = 'pablo_vi_imagen.jpg';
+                    imageUrl = 'pablo_vi.jpg';
                     description = 'Pablo VI es un barrio con una gran historia cultural.';
                     break;
-                // Agrega más barrios aquí según corresponda
                 default:
                     imageUrl = '';
                     description = 'No se encontró información para el barrio escaneado.';
             }
 
-            // Mostrar la imagen y descripción en la página
             resultImage.src = imageUrl;
             resultDescription.textContent = description;
-            resultContainer.style.display = 'block'; // Mostrar la sección de resultado
+            resultContainer.style.display = 'block';
         }
 
         window.iniciarEscaneo = iniciarEscaneo;
