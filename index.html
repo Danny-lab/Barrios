@@ -112,7 +112,7 @@
     </footer>
 
     <!-- Asegúrate de que el script se carga correctamente -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.legacy.min.js"></script>
     <script>
         QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
 
@@ -132,15 +132,19 @@
                 .then(function (stream) {
                     video.srcObject = stream;
                     video.play();
-                    qrScanner = new QrScanner(video, result => {
-                        // Cuando se escanea un QR, se llama esta función
-                        mostrarContenidoPorBarrio(result);
-                        qrScanner.stop(); // Detener el escaneo después de detectar el QR
-                        video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
-                        stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
-                    });
-                    qrScanner.start(); // Comenzar a escanear
-                    video.style.display = 'block'; // Mostrar el video mientras se escanea
+
+                    // Asegurarse de que el video está listo antes de iniciar el escaneo
+                    video.onloadedmetadata = () => {
+                        qrScanner = new QrScanner(video, result => {
+                            // Cuando se escanea un QR, se llama esta función
+                            mostrarContenidoPorBarrio(result);
+                            qrScanner.stop(); // Detener el escaneo después de detectar el QR
+                            video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
+                            stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
+                        });
+                        qrScanner.start(); // Comenzar a escanear
+                        video.style.display = 'block'; // Mostrar el video mientras se escanea
+                    };
                 })
                 .catch(function (err) {
                     console.error(err);
