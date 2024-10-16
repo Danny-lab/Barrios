@@ -79,17 +79,13 @@
                     video.play();
                     video.style.display = 'block'; // Mostrar el video mientras se escanea
 
-                    // Inicializar el escáner QR
                     qrScanner = new QrScanner(video, result => {
                         alert('Código QR escaneado: ' + result);
                         qrScanner.stop(); // Detener el escaneo después de detectar el QR
                         stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
                         video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
                     });
-
-                    // Iniciar el escáner
                     qrScanner.start(); // Comenzar a escanear
-
                 } catch (err) {
                     console.error("Error accediendo a la cámara: ", err);
                     alert("No se pudo acceder a la cámara: " + err.message);
