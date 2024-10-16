@@ -111,9 +111,10 @@
         <p>© 2024 Mapa Interactivo - Todos los derechos reservados</p>
     </footer>
 
-    <!-- Cargar los scripts de qr-scanner desde Cloudflare -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
-    <script>
+    <!-- Importar el script de qr-scanner como un módulo -->
+    <script type="module">
+        import QrScanner from 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js';
+
         // Asignar el worker para qr-scanner
         QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
 
