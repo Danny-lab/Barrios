@@ -112,11 +112,11 @@
     </footer>
 
     <!-- Asegúrate de que el script se carga correctamente -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js" defer></script>
     <script>
-        QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
-
         document.addEventListener('DOMContentLoaded', (event) => {
+            QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
+
             const video = document.getElementById('preview');
             const resultDiv = document.getElementById('result');
             let qrScanner;
