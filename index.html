@@ -18,11 +18,13 @@
             margin-top: 20px;
             font-size: 2.2rem;
         }
-        #qr-reader {
+        video {
             width: 100%;
             max-width: 600px;
             margin: 20px auto;
-            display: none; /* Ocultar el lector QR inicialmente */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: none; /* Ocultar el video inicialmente */
         }
         .btn-scan {
             display: block;
@@ -49,58 +51,54 @@
         <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara Trasera</button>
     </div>
 
-    <div id="qr-reader"></div>
+    <video id="preview"></video>
 
     <footer>
         <p>© 2024 Escaneo QR - Todos los derechos reservados</p>
     </footer>
 
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
     <script>
-        let html5QrCode;
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const video = document.getElementById('preview');
+            let qrScanner;
 
-        async function iniciarEscaneo() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("Tu navegador no soporta acceso a la cámara.");
-                return;
+            // Función para iniciar el escaneo de QR
+            async function iniciarEscaneo() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert("Tu navegador no soporta acceso a la cámara.");
+                    return;
+                }
+
+                const facingMode = 'environment'; // Usar siempre la cámara trasera
+
+                try {
+                    // Solicitar acceso a la cámara
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+                    video.srcObject = stream;
+                    video.play();
+                    video.style.display = 'block'; // Mostrar el video mientras se escanea
+
+                    // Inicializar el escáner QR
+                    qrScanner = new QrScanner(video, result => {
+                        alert('Código QR escaneado: ' + result);
+                        qrScanner.stop(); // Detener el escaneo después de detectar el QR
+                        stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
+                        video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
+                    });
+
+                    // Iniciar el escáner
+                    qrScanner.start(); // Comenzar a escanear
+
+                } catch (err) {
+                    console.error("Error accediendo a la cámara: ", err);
+                    alert("No se pudo acceder a la cámara: " + err.message);
+                }
             }
 
-            const qrReaderElement = document.getElementById("qr-reader");
-            qrReaderElement.style.display = "block"; // Mostrar el lector QR
-
-            // Inicializar html5-qrcode
-            html5QrCode = new Html5Qrcode("qr-reader");
-
-            // Configuración de la cámara
-            const cameraConfig = { facingMode: "environment" };
-
-            try {
-                console.log("Iniciando escaneo...");
-                await html5QrCode.start(
-                    cameraConfig,
-                    {
-                        fps: 10, // Cuadros por segundo
-                        qrbox: 250 // Tamaño de la caja QR
-                    },
-                    qrCodeMessage => {
-                        console.log("Código QR escaneado: " + qrCodeMessage);
-                        alert("Código QR escaneado: " + qrCodeMessage);
-                        // Detener el escáner después de un escaneo exitoso
-                        html5QrCode.stop().then(() => {
-                            qrReaderElement.style.display = "none"; // Ocultar lector QR
-                        }).catch(err => {
-                            console.error("Error deteniendo el escáner: ", err);
-                        });
-                    },
-                    errorMessage => {
-                        console.error("Error de escaneo: ", errorMessage);
-                    }
-                );
-            } catch (err) {
-                console.error("Error iniciando el escáner: ", err);
-                alert("No se pudo acceder a la cámara: " + err.message);
-            }
-        }
+            // Asignar la función al objeto window
+            window.iniciarEscaneo = iniciarEscaneo;
+        });
     </script>
 </body>
 </html>
