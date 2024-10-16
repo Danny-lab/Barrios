@@ -87,7 +87,6 @@
 
     <div class="map-container">
         <img src="mapa.jpeg" alt="Mapa de la Comuna" width="500">
-        <!-- Aquí iría tu imagen del mapa con los códigos QR -->
     </div>
 
     <div style="text-align:center;">
@@ -104,42 +103,46 @@
         <p>© 2024 Mapa Interactivo - Todos los derechos reservados</p>
     </footer>
 
-    <!-- Asegúrate de que el script se carga correctamente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
     <script>
-        QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
+        document.addEventListener('DOMContentLoaded', (event) => {
+            QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
 
-        const video = document.getElementById('preview');
-        const resultDiv = document.getElementById('result');
-        let qrScanner;
+            const video = document.getElementById('preview');
+            const resultDiv = document.getElementById('result');
+            let qrScanner;
 
-        // Función para inicializar el escaneo de QR
-        async function iniciarEscaneo() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("Tu navegador no soporta acceso a la cámara.");
-                return;
+            // Función para inicializar el escaneo de QR
+            async function iniciarEscaneo() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert("Tu navegador no soporta acceso a la cámara.");
+                    return;
+                }
+
+                try {
+                    // Solicitar acceso a la cámara
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    video.srcObject = stream;
+                    video.play();
+                    video.style.display = 'block'; // Mostrar el video mientras se escanea
+
+                    qrScanner = new QrScanner(video, result => {
+                        console.log('Código QR escaneado:', result);
+                        // Aquí puedes manejar el resultado del QR escaneado
+                        qrScanner.stop(); // Detener el escaneo después de detectar el QR
+                        stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
+                        video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
+                    });
+                    qrScanner.start(); // Comenzar a escanear
+                } catch (err) {
+                    console.error("Error accediendo a la cámara: ", err);
+                    alert("No se pudo acceder a la cámara: " + err.message);
+                }
             }
 
-            try {
-                // Solicitar acceso a la cámara
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                video.srcObject = stream;
-                video.play();
-                video.style.display = 'block'; // Mostrar el video mientras se escanea
-
-                qrScanner = new QrScanner(video, result => {
-                    console.log('Código QR escaneado:', result);
-                    // Aquí puedes manejar el resultado del QR escaneado
-                    qrScanner.stop(); // Detener el escaneo después de detectar el QR
-                    stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
-                    video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
-                });
-                qrScanner.start(); // Comenzar a escanear
-            } catch (err) {
-                console.error("Error accediendo a la cámara: ", err);
-                alert("No se pudo acceder a la cámara: " + err.message);
-            }
-        }
+            // Asignar la función al botón
+            window.iniciarEscaneo = iniciarEscaneo;
+        });
     </script>
 </body>
 </html>
