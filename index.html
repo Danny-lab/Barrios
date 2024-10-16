@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Interactivo con QR</title>
+    <title>Escaneo de Código QR</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -12,67 +12,34 @@
             margin: 0;
             padding: 0;
         }
-
         h1 {
             text-align: center;
             color: #004aad;
-            font-weight: 700;
             margin-top: 20px;
             font-size: 2.2rem;
         }
-
         .map-container {
             text-align: center;
             margin: 30px 0;
         }
-
-        .map-container img {
-            max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        #result {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 20px auto;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .btn-scan {
-            padding: 12px 30px;
-            font-size: 16px;
-            background-color: #004aad;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .btn-scan:hover {
-            background-color: #003a86;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
         video {
-            display: none;
             width: 100%;
             max-width: 600px;
             margin: 20px auto;
             border: 1px solid #ddd;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: none; /* Ocultar el video inicialmente */
         }
-
+        .btn-scan {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            background-color: #004aad;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         footer {
             text-align: center;
             margin-top: 40px;
@@ -83,52 +50,43 @@
 </head>
 <body>
 
-    <h1>Mapa Interactivo de Barrios</h1>
-
-    <div class="map-container">
-        <img src="mapa.jpeg" alt="Mapa de la Comuna" width="500">
-    </div>
-
+    <h1>Escanear Código QR</h1>
     <div style="text-align:center;">
-        <button class="btn-scan" onclick="iniciarEscaneo()">Escanear Código QR</button>
+        <button class="btn-scan" onclick="iniciarEscaneo()">Abrir Cámara</button>
     </div>
 
     <video id="preview"></video>
 
-    <div id="result">
-        <p>Escanea un código QR para ver el contenido relacionado con el barrio.</p>
-    </div>
-
     <footer>
-        <p>© 2024 Mapa Interactivo - Todos los derechos reservados</p>
+        <p>© 2024 Escaneo QR - Todos los derechos reservados</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            QrScanner.WORKER_PATH = 'https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.0.0/qr-scanner-worker.min.js';
-
             const video = document.getElementById('preview');
-            const resultDiv = document.getElementById('result');
             let qrScanner;
 
-            // Función para inicializar el escaneo de QR
+            // Función para iniciar el escaneo de QR
             async function iniciarEscaneo() {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     alert("Tu navegador no soporta acceso a la cámara.");
                     return;
                 }
 
+                // Preguntar al usuario si quiere usar la cámara trasera o frontal
+                const usarCamaraFrontal = confirm("¿Usar cámara frontal?");
+                const facingMode = usarCamaraFrontal ? 'user' : 'environment';
+
                 try {
                     // Solicitar acceso a la cámara
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
                     video.srcObject = stream;
                     video.play();
                     video.style.display = 'block'; // Mostrar el video mientras se escanea
 
                     qrScanner = new QrScanner(video, result => {
-                        console.log('Código QR escaneado:', result);
-                        // Aquí puedes manejar el resultado del QR escaneado
+                        alert('Código QR escaneado: ' + result);
                         qrScanner.stop(); // Detener el escaneo después de detectar el QR
                         stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
                         video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
@@ -140,7 +98,7 @@
                 }
             }
 
-            // Asignar la función al botón
+            // Asignar la función al objeto window
             window.iniciarEscaneo = iniciarEscaneo;
         });
     </script>
