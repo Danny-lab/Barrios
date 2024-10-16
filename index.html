@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interactivo con QR</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0054A4;
+        }
+
+        .map-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        #result img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .btn-scan {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0054A4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-scan:hover {
+            background-color: #003f7f;
+        }
+
+        video {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mapa Interactivo de Barrios</h1>
+
+    <div class="map-container">
+        <img src="mapa.jpeg" alt="Mapa de la Comuna" width="500">
+        <!-- Aquí iría tu imagen del mapa con los códigos QR -->
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+        <button class="btn-scan" onclick="iniciarEscaneo()">Escanear Código QR</button>
+    </div>
+
+    <video id="preview"></video>
+
+    <div id="result">
+        <p>Escanea un código QR para ver el contenido relacionado con el barrio.</p>
+    </div>
+
+    <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
+    <script>
+        const video = document.getElementById('preview');
+        const resultDiv = document.getElementById('result');
+        let qrScanner;
+
+        // Función para inicializar el escaneo de QR
+        function iniciarEscaneo() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Tu navegador no soporta acceso a la cámara.");
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    qrScanner = new QrScanner(video, result => {
+                        // Cuando se escanea un QR, se llama esta función
+                        mostrarContenidoPorBarrio(result);
+                        qrScanner.stop(); // Detener el escaneo después de detectar el QR
+                        video.style.display = 'none'; // Ocultar el video cuando ya se escaneó
+                        stream.getTracks().forEach(track => track.stop()); // Detener el acceso a la cámara
+                    });
+                    qrScanner.start(); // Comenzar a escanear
+                    video.style.display = 'block'; // Mostrar el video mientras se escanea
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    alert("No se pudo acceder a la cámara: " + err.message);
+                });
+        }
+
+        // Función que muestra la imagen o contenido según el texto del QR escaneado
+        function mostrarContenidoPorBarrio(textoQR) {
+            let contenido;
+            switch (textoQR.toUpperCase()) {
+                case 'PLAYON':
+                    contenido = `<img src="el_playon_imagen.jpg" alt="El Playón de los Comuneros">`;
+                    break;
+                case 'FRONTERA':
+                    contenido = `<img src="la_frontera_imagen.jpg" alt="La Frontera">`;
+                    break;
+                case 'PABLOVI':
+                    contenido = `<img src="pablo_vi_imagen.jpg" alt="Pablo VI">`;
+                    break;
+                case 'ISLA':
+                    contenido = `<img src="la_isla_imagen.jpg" alt="La Isla">`;
+                    break;
+                case 'ANDALUCIA':
+                    contenido = `<img src="andalucia_imagen.jpg" alt="Andalucía">`;
+                    break;
+                case 'VILLANUEVA':
+                    contenido = `<img src="villanueva_imagen.jpg" alt="Villanueva">`;
+                    break;
+                case 'SANTACRUZ':
+                    contenido = `<img src="santa_cruz_imagen.jpg" alt="Santa Cruz">`;
+                    break;
+                case 'MOSCU1':
+                    contenido = `<img src="moscu_imagen.jpg" alt="Moscu No. 1">`;
+                    break;
+                default:
+                    contenido = `<p>No se ha encontrado contenido para el barrio escaneado.</p>`;
+            }
+
+            resultDiv.innerHTML = contenido; // Mostramos el contenido en el div result
+        }
+    </script>
+
+</body>
+</html>
